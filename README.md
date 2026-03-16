@@ -30,7 +30,7 @@ This approach is intentionally simple and transparent to satisfy the assignment 
 All routes return a list of movies or TV shows. Use `is_movie` to choose the dataset.
 
 ### Base URL
-`http://localhost:8000`
+`http://localhost:8088`
 
 ### Health
 **GET** `/health`
