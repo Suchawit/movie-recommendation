@@ -9,7 +9,7 @@ class FakeRepo:
     def __init__(self, frame: pd.DataFrame) -> None:
         self.frame = frame
 
-    def get_frame(self, is_movie: bool) -> pd.DataFrame:
+    async def get_frame(self, is_movie: bool) -> pd.DataFrame:
         return self.frame.copy()
 
 
@@ -87,45 +87,47 @@ def _sample_frame() -> pd.DataFrame:
     return df
 
 
-class RecommendationServiceTests(unittest.TestCase):
-    def setUp(self) -> None:
+class RecommendationServiceTests(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self) -> None:
         self.repo = FakeRepo(_sample_frame())
         self.service = RecommendationService(self.repo, default_limit=10)
         self.params = RecommendationParams(
             user_id="A", is_movie=True, limit=5, min_popularity=None, min_rating=None
         )
 
-    def test_recommend_by_genres(self) -> None:
-        resp = self.service.recommend_by_genres(self.params, ["Action"])
+    async def test_recommend_by_genres(self) -> None:
+        resp = await self.service.recommend_by_genres(self.params, ["Action"])
         self.assertGreater(resp.count, 0)
         titles = [item.title for item in resp.results]
         self.assertIn("Space Adventure", titles)
 
-    def test_recommend_by_cast(self) -> None:
-        resp = self.service.recommend_by_cast(self.params, "Actor C")
+    async def test_recommend_by_cast(self) -> None:
+        resp = await self.service.recommend_by_cast(self.params, "Actor C")
         titles = [item.title for item in resp.results]
         self.assertIn("Romantic Escape", titles)
 
-    def test_recommend_by_country(self) -> None:
-        resp = self.service.recommend_by_country(self.params, "France")
+    async def test_recommend_by_country(self) -> None:
+        resp = await self.service.recommend_by_country(self.params, "France")
         self.assertEqual(resp.count, 1)
         self.assertEqual(resp.results[0].title, "Romantic Escape")
 
-    def test_recommend_by_director(self) -> None:
-        resp = self.service.recommend_by_director(self.params, "Jane Doe")
+    async def test_recommend_by_director(self) -> None:
+        resp = await self.service.recommend_by_director(self.params, "Jane Doe")
         self.assertGreaterEqual(resp.count, 1)
 
-    def test_recommend_by_description(self) -> None:
-        resp = self.service.recommend_by_description(self.params, "Space Adventure")
+    async def test_recommend_by_description(self) -> None:
+        resp = await self.service.recommend_by_description(
+            self.params, "Space Adventure"
+        )
         self.assertGreater(resp.count, 0)
         self.assertEqual(resp.results[0].title, "Space Adventure")
 
-    def test_recommend_by_title_sequel(self) -> None:
-        resp = self.service.recommend_by_title(self.params, "Space Adventure")
+    async def test_recommend_by_title_sequel(self) -> None:
+        resp = await self.service.recommend_by_title(self.params, "Space Adventure")
         titles = [item.title for item in resp.results]
         self.assertIn("Space Adventure 2", titles)
 
-    def test_min_filters(self) -> None:
+    async def test_min_filters(self) -> None:
         params = RecommendationParams(
             user_id="A",
             is_movie=True,
@@ -133,13 +135,15 @@ class RecommendationServiceTests(unittest.TestCase):
             min_popularity=40,
             min_rating=7.0,
         )
-        resp = self.service.recommend_by_genres(params, ["Action", "Adventure"])
+        resp = await self.service.recommend_by_genres(
+            params, ["Action", "Adventure"]
+        )
         self.assertEqual(resp.count, 2)
         titles = [item.title for item in resp.results]
         self.assertIn("Space Adventure", titles)
         self.assertIn("Space Adventure 2", titles)
 
-    def test_token_overlap(self) -> None:
+    async def test_token_overlap(self) -> None:
         overlap = self.service._token_overlap("heroic journey", "heroic space journey")
         self.assertGreater(overlap, 0)
 

@@ -24,10 +24,10 @@ class RecommendationService:
         self._repo = repo
         self._default_limit = default_limit
 
-    def recommend_by_genres(
+    async def recommend_by_genres(
         self, params: RecommendationParams, current_genres: List[str]
     ) -> RecommendationResponse:
-        frame = self._repo.get_frame(params.is_movie)
+        frame = await self._repo.get_frame(params.is_movie)
         terms = [g.strip().lower() for g in current_genres if g.strip()]
         if terms:
             mask = frame["genres_lc"].apply(lambda g: any(t in g for t in terms))
@@ -38,10 +38,10 @@ class RecommendationService:
         )
         return self._build_response(params.user_id, frame, params.limit)
 
-    def recommend_by_country(
+    async def recommend_by_country(
         self, params: RecommendationParams, last_watch_country: str
     ) -> RecommendationResponse:
-        frame = self._repo.get_frame(params.is_movie)
+        frame = await self._repo.get_frame(params.is_movie)
         country = last_watch_country.strip().lower()
         if country:
             frame = frame[frame["country_lc"].str.contains(country, na=False)]
@@ -49,10 +49,10 @@ class RecommendationService:
         frame["score"] = frame["popularity"].fillna(0)
         return self._build_response(params.user_id, frame, params.limit)
 
-    def recommend_by_title(
+    async def recommend_by_title(
         self, params: RecommendationParams, last_watch_title: str
     ) -> RecommendationResponse:
-        frame = self._repo.get_frame(params.is_movie)
+        frame = await self._repo.get_frame(params.is_movie)
         title = last_watch_title.strip()
         if title:
             title_norm = self._normalize_title(title)
@@ -85,10 +85,10 @@ class RecommendationService:
             frame = filtered
         return self._build_response(params.user_id, frame, params.limit)
 
-    def recommend_by_cast(
+    async def recommend_by_cast(
         self, params: RecommendationParams, last_watch_cast: str
     ) -> RecommendationResponse:
-        frame = self._repo.get_frame(params.is_movie)
+        frame = await self._repo.get_frame(params.is_movie)
         cast = last_watch_cast.strip().lower()
         if cast:
             frame["score"] = frame["cast_lc"].apply(
@@ -98,10 +98,10 @@ class RecommendationService:
         frame = self._apply_min_filters(frame, params)
         return self._build_response(params.user_id, frame, params.limit)
 
-    def recommend_by_director(
+    async def recommend_by_director(
         self, params: RecommendationParams, last_watch_director: str
     ) -> RecommendationResponse:
-        frame = self._repo.get_frame(params.is_movie)
+        frame = await self._repo.get_frame(params.is_movie)
         director = last_watch_director.strip().lower()
         if director:
             frame["score"] = frame["director_lc"].apply(
@@ -111,10 +111,10 @@ class RecommendationService:
         frame = self._apply_min_filters(frame, params)
         return self._build_response(params.user_id, frame, params.limit)
 
-    def recommend_by_description(
+    async def recommend_by_description(
         self, params: RecommendationParams, last_watch_title: str
     ) -> RecommendationResponse:
-        frame = self._repo.get_frame(params.is_movie)
+        frame = await self._repo.get_frame(params.is_movie)
         title = last_watch_title.strip().lower()
         seed_desc = ""
         if title:

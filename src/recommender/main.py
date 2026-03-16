@@ -51,7 +51,7 @@ async def recommend_genres(
     service: RecommendationService = Depends(_get_service),
 ) -> RecommendationResponse:
     params = _to_params(req)
-    return service.recommend_by_genres(params, req.current_genres)
+    return await service.recommend_by_genres(params, req.current_genres)
 
 
 @app.post("/recommend/country", response_model=RecommendationResponse)
@@ -60,7 +60,7 @@ async def recommend_country(
     service: RecommendationService = Depends(_get_service),
 ) -> RecommendationResponse:
     params = _to_params(req)
-    return service.recommend_by_country(params, req.last_watch_country)
+    return await service.recommend_by_country(params, req.last_watch_country)
 
 
 @app.post("/recommend/title", response_model=RecommendationResponse)
@@ -69,7 +69,7 @@ async def recommend_title(
     service: RecommendationService = Depends(_get_service),
 ) -> RecommendationResponse:
     params = _to_params(req)
-    return service.recommend_by_title(params, req.last_watch_title)
+    return await service.recommend_by_title(params, req.last_watch_title)
 
 
 @app.post("/recommend/cast", response_model=RecommendationResponse)
@@ -78,7 +78,7 @@ async def recommend_cast(
     service: RecommendationService = Depends(_get_service),
 ) -> RecommendationResponse:
     params = _to_params(req)
-    return service.recommend_by_cast(params, req.last_watch_cast)
+    return await service.recommend_by_cast(params, req.last_watch_cast)
 
 
 @app.post("/recommend/director", response_model=RecommendationResponse)
@@ -87,7 +87,7 @@ async def recommend_director(
     service: RecommendationService = Depends(_get_service),
 ) -> RecommendationResponse:
     params = _to_params(req)
-    return service.recommend_by_director(params, req.last_watch_director)
+    return await service.recommend_by_director(params, req.last_watch_director)
 
 
 @app.post("/recommend/description", response_model=RecommendationResponse)
@@ -96,4 +96,4 @@ async def recommend_description(
     service: RecommendationService = Depends(_get_service),
 ) -> RecommendationResponse:
     params = _to_params(req)
-    return service.recommend_by_description(params, req.last_watch_title)
+    return await service.recommend_by_description(params, req.last_watch_title)

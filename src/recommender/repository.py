@@ -57,5 +57,5 @@ class ContentRepository:
 
         return df
 
-    def get_frame(self, is_movie: bool) -> pd.DataFrame:
+    async def get_frame(self, is_movie: bool) -> pd.DataFrame:
         return self._frames["Movie" if is_movie else "TV Show"].copy()
